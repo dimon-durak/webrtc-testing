@@ -1,0 +1,45 @@
+body {
+  font-family: "Open Sans", sans-serif;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-size: 14px;
+  background-color: #233056;
+  color: lightcyan;
+  text-align: center;
+}
+
+h1 {
+  margin: 42px;
+  font-size: 34px;
+  font-weight: 300;
+  line-height: 46px;
+  padding-bottom: 21px;
+  border-bottom: 1px solid orangered;
+  text-transform: uppercase
+}
+
+label {
+  border: 1px solid greenyellow;
+  color: lightcyan;
+  padding: 15px;
+  cursor: pointer;
+  -webkit-user-select: none;  
+  -moz-user-select: none;     
+  user-select: none; 
+}
+
+label[disabled] {
+  border: 1px solid red;
+}
+
+#input {
+  display: none;
+}
+
+#imgContainer img {
+  padding-top: 50px;
+  max-width: calc(100% - 50px);
+  height: auto;
+}
+
