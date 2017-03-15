@@ -12,9 +12,8 @@ window.addEventListener('load', createConnection, false);
 window.addEventListener('message', onSignaling, false);
 input.addEventListener('change', onInputChange, false);
 function createConnection() {
-    let servers = null;
-    let pcConstraint = null;
-    pc = new RTCPeerConnection(servers, pcConstraint);
+    let configuration = null;
+    pc = new RTCPeerConnection(configuration);
     channel = pc.createDataChannel('DataChannel');
     setChannel();
     if (window.opener) {
@@ -68,27 +67,21 @@ function onSignaling(e) {
 }
 ;
 function sendOfferToRemoteWindow() {
-    let message = JSON.stringify({
-        type: 'offer',
-        sdp: pc.localDescription
-    });
-    remoteWindow.postMessage(message, window.location.origin);
+    let message = { type: 'offer', sdp: pc.localDescription };
+    remoteWindow.postMessage(JSON.stringify(message), window.location.origin);
 }
 ;
 function sendAnswerToRemoteWindow() {
-    let message = JSON.stringify({
-        type: 'answer',
-        sdp: pc.localDescription
-    });
-    remoteWindow.postMessage(message, window.location.origin);
+    let message = { type: 'answer', sdp: pc.localDescription };
+    remoteWindow.postMessage(JSON.stringify(message), window.location.origin);
 }
 ;
 function sendMetadataToRemoteWindow(file) {
-    let message = JSON.stringify({
+    let message = {
         type: 'metadata',
         file: { name: file.name, size: file.size }
-    });
-    remoteWindow.postMessage(message, window.location.origin);
+    };
+    remoteWindow.postMessage(JSON.stringify(message), window.location.origin);
 }
 ;
 function onInputChange() {

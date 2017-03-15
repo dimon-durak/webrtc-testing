@@ -1,26 +1,25 @@
 'use strict';
 
-interface IFileMetadata {
-  size: number;
-  name: String;
-}
+type MessageType = 'offer' | 'answer' | 'ice' | 'metadata';
 
-interface IMessage {
-  type: String;
+type FileMetadata = { size: number; name: string; }
+
+type Message = {
+  type: MessageType;
   sdp?: RTCSessionDescription;
   candidate?: RTCIceCandidate;
-  file?: IFileMetadata;
+  file?: FileMetadata;
 }
 
 let pc:RTCPeerConnection;
-let channel ;
+let channel;
 
 let input: HTMLInputElement = document.querySelector('input');
 let label: HTMLLabelElement = document.querySelector('label');
 let imgContainer: HTMLElement = document.getElementById('imgContainer');
 
-let receivedFile: IFileMetadata;
-let receiveBuffer: Object[] = [];
+let receivedFile: FileMetadata;
+let receiveBuffer: object[] = [];
 let receivedSize: number = 0;
 
 let remoteWindow: Window = (window.opener) ? window.opener : window.open('/','_blank');
@@ -30,10 +29,9 @@ window.addEventListener('message', onSignaling, false);
 input.addEventListener('change', onInputChange, false);
 
 function createConnection(): void {
-  let servers: RTCIceServer = null;
-  let pcConstraint = null;
+  let configuration:RTCConfiguration = null; 
 
-  pc = new RTCPeerConnection(servers, pcConstraint);
+  pc = new RTCPeerConnection(configuration); 
 
   channel = pc.createDataChannel('DataChannel');
   setChannel();
@@ -70,7 +68,7 @@ function setChannel():void {
 };
 
 function onSignaling(e: MessageEvent):void { 
-  let message: IMessage = JSON.parse(e.data);
+  let message: Message = JSON.parse(e.data);
 
   if (message.type === 'offer') {
     pc.setRemoteDescription(message.sdp);
@@ -91,27 +89,21 @@ function onSignaling(e: MessageEvent):void {
 };
 
 function sendOfferToRemoteWindow():void {
-  let message: String = JSON.stringify({
-    type: 'offer',
-    sdp: pc.localDescription
-  });
-  remoteWindow.postMessage(message, window.location.origin)
+  let message: Message  = { type: 'offer', sdp: pc.localDescription };
+  remoteWindow.postMessage(JSON.stringify(message), window.location.origin)
 };
 
 function sendAnswerToRemoteWindow():void {
-  let message: String = JSON.stringify({
-    type: 'answer',
-    sdp: pc.localDescription
-  });
-  remoteWindow.postMessage(message, window.location.origin)
+  let message: Message = { type: 'answer', sdp: pc.localDescription };
+  remoteWindow.postMessage(JSON.stringify(message), window.location.origin)
 };
 
 function sendMetadataToRemoteWindow(file: File):void {
-  let message: String = JSON.stringify({
+  let message: Message = {
     type: 'metadata',
     file: { name: file.name, size: file.size }
-  });
-  remoteWindow.postMessage(message, window.location.origin)
+  };
+  remoteWindow.postMessage(JSON.stringify(message), window.location.origin)
 };
 
 function onInputChange():void {
