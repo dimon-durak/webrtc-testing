@@ -121,9 +121,7 @@ function onInputChange():void {
 function insertImage(file: File|Blob):void {
   let img: HTMLImageElement = document.createElement('img');
   img.src = window.URL.createObjectURL(file);
-  img.onload = function() {
-    window.URL.revokeObjectURL(this.src)
-  };
+  img.onload = () => window.URL.revokeObjectURL(this.src);
 
   let oldImg = imgContainer.querySelector('img');
 
@@ -174,10 +172,8 @@ function onChannelMessage(e: MessageEvent):void {
     let message = JSON.parse(e.data);
     if (message.type) {
       if (message.type === 'metadata') receivedFile = message.file;
-    }  
-
-  }
-  
+    } 
+  };
 };
 
 function onChannelStateChange():void {

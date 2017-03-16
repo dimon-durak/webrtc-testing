@@ -102,9 +102,7 @@ function onInputChange() {
 function insertImage(file) {
     let img = document.createElement('img');
     img.src = window.URL.createObjectURL(file);
-    img.onload = function () {
-        window.URL.revokeObjectURL(this.src);
-    };
+    img.onload = () => window.URL.revokeObjectURL(this.src);
     let oldImg = imgContainer.querySelector('img');
     if (oldImg) {
         imgContainer.replaceChild(img, oldImg);
@@ -154,6 +152,7 @@ function onChannelMessage(e) {
                 receivedFile = message.file;
         }
     }
+    ;
 }
 ;
 function onChannelStateChange() {
