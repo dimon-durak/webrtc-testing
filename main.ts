@@ -83,9 +83,9 @@ function onSignaling(e: MessageEvent):void {
   if (message.type === 'ice') {
     pc.addIceCandidate(new RTCIceCandidate(message.candidate));
   }
-  if (message.type === 'metadata') {
-    receivedFile = message.file;
-  }  
+  // if (message.type === 'metadata') {
+  //   receivedFile = message.file;
+  // }  
 };
 
 function sendOfferToRemoteWindow():void {
@@ -98,12 +98,13 @@ function sendAnswerToRemoteWindow():void {
   remoteWindow.postMessage(JSON.stringify(message), window.location.origin)
 };
 
-function sendMetadataToRemoteWindow(file: File):void {
+function sendMetadata(file: File):void {
   let message: Message = {
     type: 'metadata',
     file: { name: file.name, size: file.size }
   };
-  remoteWindow.postMessage(JSON.stringify(message), window.location.origin)
+  channel.send(JSON.stringify(message));
+  // remoteWindow.postMessage(JSON.stringify(message), window.location.origin)
 };
 
 function onInputChange():void {
@@ -113,7 +114,7 @@ function onInputChange():void {
   } else {
     if (file.type.startsWith('image')) {
       insertImage(file);
-      sendMetadataToRemoteWindow(file);
+      sendMetadata(file);
       sendImage(file);
     } else {
       console.log('Это не изображение');
@@ -173,7 +174,14 @@ function onChannelMessage(e: MessageEvent):void {
       receivedSize = 0;
       receiveBuffer = [];
     }
-  };
+  } else if (typeof e.data === 'string') {
+    let message = JSON.parse(e.data);
+    if (message.type) {
+      if (message.type === 'metadata') receivedFile = message.file;
+    }  
+
+  }
+  
 };
 
 function onChannelStateChange():void {

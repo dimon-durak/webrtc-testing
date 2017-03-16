@@ -61,9 +61,9 @@ function onSignaling(e) {
     if (message.type === 'ice') {
         pc.addIceCandidate(new RTCIceCandidate(message.candidate));
     }
-    if (message.type === 'metadata') {
-        receivedFile = message.file;
-    }
+    // if (message.type === 'metadata') {
+    //   receivedFile = message.file;
+    // }  
 }
 ;
 function sendOfferToRemoteWindow() {
@@ -76,12 +76,13 @@ function sendAnswerToRemoteWindow() {
     remoteWindow.postMessage(JSON.stringify(message), window.location.origin);
 }
 ;
-function sendMetadataToRemoteWindow(file) {
+function sendMetadata(file) {
     let message = {
         type: 'metadata',
         file: { name: file.name, size: file.size }
     };
-    remoteWindow.postMessage(JSON.stringify(message), window.location.origin);
+    channel.send(JSON.stringify(message));
+    // remoteWindow.postMessage(JSON.stringify(message), window.location.origin)
 }
 ;
 function onInputChange() {
@@ -92,7 +93,7 @@ function onInputChange() {
     else {
         if (file.type.startsWith('image')) {
             insertImage(file);
-            sendMetadataToRemoteWindow(file);
+            sendMetadata(file);
             sendImage(file);
         }
         else {
@@ -150,7 +151,13 @@ function onChannelMessage(e) {
             receiveBuffer = [];
         }
     }
-    ;
+    else if (typeof e.data === 'string') {
+        let message = JSON.parse(e.data);
+        if (message.type) {
+            if (message.type === 'metadata')
+                receivedFile = message.file;
+        }
+    }
 }
 ;
 function onChannelStateChange() {
