@@ -83,9 +83,6 @@ function onSignaling(e: MessageEvent):void {
   if (message.type === 'ice') {
     pc.addIceCandidate(new RTCIceCandidate(message.candidate));
   }
-  // if (message.type === 'metadata') {
-  //   receivedFile = message.file;
-  // }  
 };
 
 function sendOfferToRemoteWindow():void {
@@ -104,7 +101,6 @@ function sendMetadata(file: File):void {
     file: { name: file.name, size: file.size }
   };
   channel.send(JSON.stringify(message));
-  // remoteWindow.postMessage(JSON.stringify(message), window.location.origin)
 };
 
 function onInputChange():void {

@@ -61,9 +61,6 @@ function onSignaling(e) {
     if (message.type === 'ice') {
         pc.addIceCandidate(new RTCIceCandidate(message.candidate));
     }
-    // if (message.type === 'metadata') {
-    //   receivedFile = message.file;
-    // }  
 }
 ;
 function sendOfferToRemoteWindow() {
@@ -82,7 +79,6 @@ function sendMetadata(file) {
         file: { name: file.name, size: file.size }
     };
     channel.send(JSON.stringify(message));
-    // remoteWindow.postMessage(JSON.stringify(message), window.location.origin)
 }
 ;
 function onInputChange() {
