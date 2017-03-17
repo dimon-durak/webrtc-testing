@@ -23,7 +23,7 @@ function createConnection() {
             .catch(error => console.error('Ошибка при создании предложения:', error));
     }
     ;
-    pc.onicecandidate = e => {
+    pc.onicecandidate = (e) => {
         if (e.candidate) {
             let message = JSON.stringify({
                 type: 'ice',
@@ -32,7 +32,7 @@ function createConnection() {
             remoteWindow.postMessage(message, location.origin);
         }
     };
-    pc.ondatachannel = e => {
+    pc.ondatachannel = (e) => {
         channel = e.channel;
         setChannel();
     };
@@ -76,7 +76,7 @@ function sendAnswerToRemoteWindow() {
 function sendMetadata(file) {
     let message = {
         type: 'metadata',
-        file: { name: file.name, size: file.size }
+        fileMetadata: { name: file.name, size: file.size }
     };
     channel.send(JSON.stringify(message));
 }
@@ -110,6 +110,7 @@ function insertImage(file) {
     else {
         imgContainer.appendChild(img);
     }
+    ;
 }
 ;
 function sendImage(file) {
@@ -149,7 +150,7 @@ function onChannelMessage(e) {
         let message = JSON.parse(e.data);
         if (message.type) {
             if (message.type === 'metadata')
-                receivedFile = message.file;
+                receivedFile = message.fileMetadata;
         }
     }
     ;

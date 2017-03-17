@@ -8,11 +8,11 @@ type Message = {
   type: MessageType;
   sdp?: RTCSessionDescription;
   candidate?: RTCIceCandidate;
-  file?: FileMetadata;
+  fileMetadata?: FileMetadata;
 }
 
-let pc:RTCPeerConnection;
-let channel;
+let pc: RTCPeerConnection;
+let channel: RTCDataChannel;  
 
 let input: HTMLInputElement = document.querySelector('input');
 let label: HTMLLabelElement = document.querySelector('label');
@@ -29,7 +29,7 @@ window.addEventListener('message', onSignaling, false);
 input.addEventListener('change', onInputChange, false);
 
 function createConnection(): void {
-  let configuration:RTCConfiguration = null; 
+  let configuration: RTCConfiguration = null; 
 
   pc = new RTCPeerConnection(configuration); 
 
@@ -43,7 +43,7 @@ function createConnection(): void {
       .catch(error => console.error('Ошибка при создании предложения:', error));
   };
 
-  pc.onicecandidate = e => {
+  pc.onicecandidate = (e: RTCPeerConnectionIceEvent) => {
     if (e.candidate) {
       let message = JSON.stringify({
         type: 'ice',
@@ -53,13 +53,13 @@ function createConnection(): void {
     }
   };
 
-  pc.ondatachannel = e => {
+  pc.ondatachannel = (e: RTCDataChannelEvent) => {
     channel = e.channel;
     setChannel();
   };
 };
 
-function setChannel():void {
+function setChannel(): void {
   channel.binaryType = 'arraybuffer';
   channel.onmessage = onChannelMessage;
   channel.onopen = onChannelStateChange;
@@ -67,7 +67,7 @@ function setChannel():void {
   channel.onerror = onChannelError;  
 };
 
-function onSignaling(e: MessageEvent):void { 
+function onSignaling(e: MessageEvent): void { 
   let message: Message = JSON.parse(e.data);
 
   if (message.type === 'offer') {
@@ -85,25 +85,25 @@ function onSignaling(e: MessageEvent):void {
   }
 };
 
-function sendOfferToRemoteWindow():void {
+function sendOfferToRemoteWindow(): void {
   let message: Message  = { type: 'offer', sdp: pc.localDescription };
   remoteWindow.postMessage(JSON.stringify(message), window.location.origin)
 };
 
-function sendAnswerToRemoteWindow():void {
+function sendAnswerToRemoteWindow(): void {
   let message: Message = { type: 'answer', sdp: pc.localDescription };
   remoteWindow.postMessage(JSON.stringify(message), window.location.origin)
 };
 
-function sendMetadata(file: File):void {
+function sendMetadata(file: File): void {
   let message: Message = {
     type: 'metadata',
-    file: { name: file.name, size: file.size }
+    fileMetadata: { name: file.name, size: file.size }
   };
   channel.send(JSON.stringify(message));
 };
 
-function onInputChange():void {
+function onInputChange(): void {
   let file = input.files[0];
   if (!file) {
     console.log('Файл не выбран');
@@ -118,7 +118,7 @@ function onInputChange():void {
   }
 };
 
-function insertImage(file: File|Blob):void {
+function insertImage(file: File|Blob): void {
   let img: HTMLImageElement = document.createElement('img');
   img.src = window.URL.createObjectURL(file);
   img.onload = () => window.URL.revokeObjectURL(this.src);
@@ -129,11 +129,10 @@ function insertImage(file: File|Blob):void {
     imgContainer.replaceChild(img, oldImg)
   } else {
     imgContainer.appendChild(img)
-  }
-  
+  };
 };
 
-function sendImage(file: File):void {
+function sendImage(file: File): void {
   if (file.size === 0) {
     console.info('Файл пустой, выбери другой файл');
     return;
@@ -157,7 +156,7 @@ function sendImage(file: File):void {
   sliceFile(0);
 };
 
-function onChannelMessage(e: MessageEvent):void {
+function onChannelMessage(e: RTCMessageEvent): void {
   if (typeof e.data === 'object') {
     receiveBuffer.push(e.data);
     receivedSize += e.data.byteLength;
@@ -171,12 +170,12 @@ function onChannelMessage(e: MessageEvent):void {
   } else if (typeof e.data === 'string') {
     let message = JSON.parse(e.data);
     if (message.type) {
-      if (message.type === 'metadata') receivedFile = message.file;
+      if (message.type === 'metadata') receivedFile = message.fileMetadata;
     } 
   };
 };
 
-function onChannelStateChange():void {
+function onChannelStateChange(): void {
   let readyState = channel.readyState;
 
   if (readyState === 'open') {
@@ -189,6 +188,6 @@ function onChannelStateChange():void {
   }
 };
 
-function onChannelError(e: MessageEvent):void {
+function onChannelError(e: MessageEvent): void {
   console.error('Ошибка канала: ', e)
 };
