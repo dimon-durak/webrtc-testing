@@ -73,14 +73,6 @@ function sendAnswerToRemoteWindow() {
     remoteWindow.postMessage(JSON.stringify(message), window.location.origin);
 }
 ;
-function sendMetadata(file) {
-    let message = {
-        type: 'metadata',
-        fileMetadata: { name: file.name, size: file.size }
-    };
-    channel.send(JSON.stringify(message));
-}
-;
 function onInputChange() {
     let file = input.files[0];
     if (!file) {
@@ -89,7 +81,7 @@ function onInputChange() {
     else {
         if (file.type.startsWith('image')) {
             insertImage(file);
-            sendMetadata(file);
+            sendFileMetadata(file);
             sendImage(file);
         }
         else {
@@ -111,6 +103,14 @@ function insertImage(file) {
         imgContainer.appendChild(img);
     }
     ;
+}
+;
+function sendFileMetadata(file) {
+    let message = {
+        type: 'metadata',
+        fileMetadata: { name: file.name, size: file.size }
+    };
+    channel.send(JSON.stringify(message));
 }
 ;
 function sendImage(file) {

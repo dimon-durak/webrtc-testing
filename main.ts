@@ -95,14 +95,6 @@ function sendAnswerToRemoteWindow(): void {
   remoteWindow.postMessage(JSON.stringify(message), window.location.origin)
 };
 
-function sendMetadata(file: File): void {
-  let message: Message = {
-    type: 'metadata',
-    fileMetadata: { name: file.name, size: file.size }
-  };
-  channel.send(JSON.stringify(message));
-};
-
 function onInputChange(): void {
   let file = input.files[0];
   if (!file) {
@@ -110,7 +102,7 @@ function onInputChange(): void {
   } else {
     if (file.type.startsWith('image')) {
       insertImage(file);
-      sendMetadata(file);
+      sendFileMetadata(file);
       sendImage(file);
     } else {
       console.log('Это не изображение');
@@ -130,6 +122,14 @@ function insertImage(file: File|Blob): void {
   } else {
     imgContainer.appendChild(img)
   };
+};
+
+function sendFileMetadata(file: File): void {
+  let message: Message = {
+    type: 'metadata',
+    fileMetadata: { name: file.name, size: file.size }
+  };
+  channel.send(JSON.stringify(message));
 };
 
 function sendImage(file: File): void {
