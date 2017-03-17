@@ -137,10 +137,11 @@ function sendImage(file: File): void {
   }
 
   let chunkSize: number = 16384;
+
   let sliceFile = function(offset: number) {
     let reader: FileReader = new FileReader();
 
-    reader.onload = (function() {
+    reader.onload = (function(ev) {
       return function(e) {
         channel.send(e.target.result);
         if (file.size > offset + e.target.result.byteLength) {
@@ -152,6 +153,7 @@ function sendImage(file: File): void {
     let slice: Blob = file.slice(offset, offset + chunkSize);
     reader.readAsArrayBuffer(slice);
   };
+
   sliceFile(0);
 };
 

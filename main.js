@@ -121,7 +121,7 @@ function sendImage(file) {
     let chunkSize = 16384;
     let sliceFile = function (offset) {
         let reader = new FileReader();
-        reader.onload = (function () {
+        reader.onload = (function (ev) {
             return function (e) {
                 channel.send(e.target.result);
                 if (file.size > offset + e.target.result.byteLength) {
