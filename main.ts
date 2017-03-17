@@ -1,11 +1,9 @@
 'use strict';
 
-type MessageType = 'offer' | 'answer' | 'ice' | 'metadata';
-
 type FileMetadata = { size: number; name: string; }
 
 type Message = {
-  type: MessageType;
+  type: 'offer' | 'answer' | 'ice' | 'metadata';
   sdp?: RTCSessionDescription;
   candidate?: RTCIceCandidate;
   fileMetadata?: FileMetadata;
@@ -138,9 +136,10 @@ function sendImage(file: File): void {
     return;
   }
 
-  let chunkSize = 16384;
+  let chunkSize: number = 16384;
   let sliceFile = function(offset: number) {
-    let reader = new window.FileReader();
+    let reader: FileReader = new FileReader();
+
     reader.onload = (function() {
       return function(e) {
         channel.send(e.target.result);
@@ -150,7 +149,7 @@ function sendImage(file: File): void {
       };
     })(file);
 
-    let slice = file.slice(offset, offset + chunkSize);
+    let slice: Blob = file.slice(offset, offset + chunkSize);
     reader.readAsArrayBuffer(slice);
   };
   sliceFile(0);
