@@ -1,0 +1,6 @@
+{
+  "globalDependencies": {
+    "webrtc": "registry:dt/webrtc#0.0.0+20160715011343",
+    "webrtc/rtcpeerconnection": "registry:dt/webrtc/rtcpeerconnection#0.0.0+20160719235950"
+  }
+}
